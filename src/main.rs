@@ -7,18 +7,21 @@ pub use rusqlite::{
 
 use rusqlite::Connection;
 
+const REFRESH_DB: bool = false;
 fn main() -> Result <()> {
     env::set_var("RUST_BACKTRACE", "1");
     println!("Hello, world!");
 
-    let db_conn = Connection::open("hotel_database.db")?;
+    if REFRESH_DB {
+        clear_tables()?; // for testing purposes
+        init_tables()?;
+        
+        println!("working...");
+        // populate_db()?;
+        println!("done!");
+    }
     
-    clear_tables()?; // for testing purposes
-    init_tables()?;
-    
-    println!("working...");
-    populate_db()?;
-    println!("done!");
+
     example_query_1();
 
     Ok(())
@@ -273,7 +276,10 @@ impl Hotel {
         let mut names = vec![];
 
         let hotel_list = match Hotel::get_all_hotels() {
-            Err(_e) => vec![],
+            Err(_e) => {
+                println!("not supposed to happen");
+                vec![]
+            },
             Ok(hl) => hl,
         };
         for h in hotel_list {
